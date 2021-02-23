@@ -139,7 +139,10 @@ func GetCustomer(id int) []byte {
 }
 
 // CreateCustomer ...
-func CreateCustomer(name string) bool {
+func CreateCustomer(values []byte) bool {
+	var cust customer
+	json.Unmarshal(values, &cust)
+
 	fmt.Println("Adding new customer.")
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
 	db, err := sql.Open("postgres", psqlInfo)
@@ -155,9 +158,10 @@ func CreateCustomer(name string) bool {
 		return false
 	}
 
-	_, err = stmt.Exec(name)
+	log.Println(cust.Name)
+	_, err = stmt.Exec(cust.Name)
 	if err != nil {
-		log.Println(err)
+		log.Panicln(err)
 		return false
 	}
 

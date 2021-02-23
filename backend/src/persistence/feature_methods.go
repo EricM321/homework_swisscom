@@ -78,7 +78,8 @@ func CreateFeature(value []byte) bool {
 	for _, customerID := range values.CustomerIds {
 		_, err = db.Exec(sqlQuery, customerID, featureID)
 		if err != nil {
-			panic(err)
+			log.Panicln(err)
+			return false
 		}
 	}
 	db.Close()
@@ -88,6 +89,7 @@ func CreateFeature(value []byte) bool {
 
 // UpdateFeature ...
 func UpdateFeature(value []byte) bool {
+	fmt.Println("Updating feature.")
 	var values Feature
 	json.Unmarshal(value, &values)
 
@@ -95,23 +97,29 @@ func UpdateFeature(value []byte) bool {
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		panic(err)
+		log.Panicln(err)
+		return false
 	}
 
-	sqlQuery := `UPDATE ` + featureTableName + ` SET display_name=$1, technical_name=$2, expires_on=$3, description=$4, inverted=$5 WHERE feature_id=$6`
+	sqlQuery := `UPDATE ` + featureTableName + ` SET display_name = $1, technical_name = $2, expires_on = $3, description = $4, inverted = $5 WHERE feature_id = $6;`
 
 	stmt, err := db.Prepare(sqlQuery)
 	if err != nil {
-		log.Println(err)
+		log.Panicln(err)
 		return false
 	}
 
-	_, err = stmt.Query(values.DisplayName, values.TechnicalName, values.ExpiresOn, values.Description, values.Inverted, values.ID)
+	res, err := stmt.Exec(values.DisplayName, values.TechnicalName, values.ExpiresOn, values.Description, values.Inverted, values.ID)
+	rowAffected, _ := res.RowsAffected()
 	if err != nil {
-		log.Println(err)
+		log.Panicln(err)
+		return false
+	} else if rowAffected == 0 {
+		log.Panicln("No rows updated")
 		return false
 	}
 
+	// need to remove customers from feature as well
 	sqlQuery = `
 	INSERT INTO ` + linkerTableName + ` (customer_id, feature_id)
 	VALUES ($1, $2) ON CONFLICT DO NOTHING`
@@ -120,7 +128,7 @@ func UpdateFeature(value []byte) bool {
 		_, err = db.Exec(sqlQuery, customerID, values.ID)
 
 		if err != nil {
-			log.Println(err)
+			log.Panicln(err)
 			return false
 		}
 	}
@@ -131,7 +139,7 @@ func UpdateFeature(value []byte) bool {
 
 // GetFeatures temp
 func GetFeatures() []byte {
-	fmt.Println("Retrieving features.")
+	fmt.Println("Retrieving all features.")
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
@@ -262,7 +270,7 @@ func GetFeature(id int) []byte {
 
 // ToggleFeature ...
 func ToggleFeature(featureID int) bool {
-	fmt.Println("Archiving feature.")
+	fmt.Println("Toggling feature.")
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"persistence"
 	"reflect"
 	"testing"
@@ -15,15 +17,21 @@ func init() {
 func TestReturnAllCustomers(t *testing.T) {
 	// Need to fix the ampersand in AT&T
 	expected := []byte(`{"customers":[{"customerId":1,"name":"AT\u0026T"},{"customerId":2,"name":"Swisscom"}]}`)
-	actual := ReturnAllCustomers()
+	actual := GetCustomers()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("ReturnAllCustomers was incorrect:\nactual:   %s\nexpected: %s", actual, expected)
 	}
 }
 
 func TestCreateNewCustomer(t *testing.T) {
+	values := customer{Name: "Ericsson"}
+	jsonData, err := json.Marshal(values)
+	if err != nil {
+		log.Println(err)
+	}
+
 	expected := true
-	actual := CreateNewCustomer("Ericsson")
+	actual := CreateNewCustomer(jsonData)
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("CreateNewCustomer was incorrect:\nactual:   %t\nexpected: %t", actual, expected)
 	}

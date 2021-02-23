@@ -4,6 +4,15 @@ import (
 	"persistence"
 )
 
+type customer struct {
+	ID   int    `json:"customerId"`
+	Name string `json:"name"`
+}
+
+type customers struct {
+	Customers []customer `json:"customers"`
+}
+
 // TODO Centralise structs
 type relation struct {
 	CusID  int `json:"customerId"`
@@ -16,14 +25,14 @@ type relations struct {
 
 // TODO Refactor to rest calls
 
-// ReturnAllCustomers will give a json object with all customers in the database
-func ReturnAllCustomers() []byte {
+// GetCustomers will give a json object with all customers in the database
+func GetCustomers() []byte {
 	return persistence.GetCustomers()
 }
 
 // CreateNewCustomer returns if creation was a success
-func CreateNewCustomer(name string) bool {
-	return persistence.CreateCustomer(name)
+func CreateNewCustomer(values []byte) bool {
+	return persistence.CreateCustomer(values)
 }
 
 // GetCustomer returns the row of data for individual customer

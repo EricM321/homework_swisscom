@@ -45,7 +45,6 @@ func TestCreateNewFeature(t *testing.T) {
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println(string(jsonData))
 
 	expected := true //[]byte(`{"featureId":2,"displayName":"Test","technicalName":"Test_Create_Feature","expiresOn":"0001-01-01T00:00:00Z","description":"","inverted":false,"active":true}`)
 	actual := CreateNewFeature(jsonData)
@@ -56,9 +55,9 @@ func TestCreateNewFeature(t *testing.T) {
 
 func TestUpdateFreature(t *testing.T) {
 	values := Feature{
-		ID:            2,
+		ID:            0,
 		DisplayName:   "Test",
-		TechnicalName: "Test_Create_Feature",
+		TechnicalName: "Test_Update_Feature",
 		ExpiresOn:     time.Time{}, // "empty" time value
 		Description:   "",
 		Inverted:      false,
@@ -72,7 +71,11 @@ func TestUpdateFreature(t *testing.T) {
 	fmt.Println(string(jsonData))
 
 	expected := true
-	actual := UpdateFreature(jsonData)
+	actual := UpdateFreature(2, jsonData)
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("UpdateFreature was incorrect:\nactual:   %t\nexpected: %t", actual, expected)
+	}
+
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("UpdateFreature was incorrect:\nactual:   %t\nexpected: %t", actual, expected)
 	}
