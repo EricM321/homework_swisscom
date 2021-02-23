@@ -9,7 +9,7 @@ import (
 
 func init() {
 	persistence.CreateDatabase()
-	fmt.Println("\nTesting started")
+	fmt.Println("\nTesting customer")
 }
 
 func TestReturnAllCustomers(t *testing.T) {

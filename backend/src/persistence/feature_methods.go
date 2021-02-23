@@ -8,6 +8,17 @@ import (
 	"time"
 )
 
+// Feature ...
+type Feature struct {
+	ID            int       `json:"id"`          // optional
+	DisplayName   string    `json:"displayName"` // optional
+	TechnicalName string    `json:"technicalName"`
+	ExpiresOn     time.Time `json:"expiresOn"`   // optional
+	Description   string    `json:"description"` // optional
+	Inverted      bool      `json:"inverted"`
+	CustomerIds   []int     `json:"customerIds"`
+}
+
 type feature struct {
 	ID            int       `json:"featureId"`
 	DisplayName   string    `json:"displayName"`
@@ -29,6 +40,93 @@ type relation struct {
 
 type relations struct {
 	Relations []relation `json:"relations"`
+}
+
+// CreateFeature ...
+func CreateFeature(value []byte) bool {
+	var values Feature
+	json.Unmarshal(value, &values)
+
+	fmt.Println("Adding new feature.")
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		panic(err)
+	}
+
+	sqlQuery := `
+	INSERT INTO ` + featureTableName + ` (` + displayName + `, ` + technicalName + `, ` + expiresOn + `, ` + description + `, ` + inverted + `, ` + active + `)
+	VALUES ($1, $2, $3, $4, $5, $6) RETURNING feature_id`
+
+	stmt, err := db.Prepare(sqlQuery)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	var featureID int
+	err = stmt.QueryRow(values.DisplayName, values.TechnicalName, values.ExpiresOn, values.Description, values.Inverted, true).Scan(&featureID)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	sqlQuery = `
+	INSERT INTO ` + linkerTableName + ` (customer_id, feature_id)
+	VALUES ($1, $2)`
+
+	for _, customerID := range values.CustomerIds {
+		_, err = db.Exec(sqlQuery, customerID, featureID)
+		if err != nil {
+			panic(err)
+		}
+	}
+	db.Close()
+
+	return true
+}
+
+// UpdateFeature ...
+func UpdateFeature(value []byte) bool {
+	var values Feature
+	json.Unmarshal(value, &values)
+
+	fmt.Println("Updating feature.")
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		panic(err)
+	}
+
+	sqlQuery := `UPDATE ` + featureTableName + ` SET display_name=$1, technical_name=$2, expires_on=$3, description=$4, inverted=$5 WHERE feature_id=$6`
+
+	stmt, err := db.Prepare(sqlQuery)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	_, err = stmt.Query(values.DisplayName, values.TechnicalName, values.ExpiresOn, values.Description, values.Inverted, values.ID)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	sqlQuery = `
+	INSERT INTO ` + linkerTableName + ` (customer_id, feature_id)
+	VALUES ($1, $2) ON CONFLICT DO NOTHING`
+
+	for _, customerID := range values.CustomerIds {
+		_, err = db.Exec(sqlQuery, customerID, values.ID)
+
+		if err != nil {
+			log.Println(err)
+			return false
+		}
+	}
+	db.Close()
+
+	return true
 }
 
 // GetFeatures temp
@@ -96,7 +194,6 @@ func GetFeatures() []byte {
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println(string(jsonData))
 	return jsonData
 }
 
@@ -160,39 +257,47 @@ func GetFeature(id int) []byte {
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println(string(jsonData))
 	return jsonData
 }
 
-// UpdateFeature temp
-func UpdateFeature(featureID int, invert bool) {
-	fmt.Println("Updating feature toggle.")
+// ToggleFeature ...
+func ToggleFeature(featureID int) bool {
+	fmt.Println("Archiving feature.")
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return false
 	}
 
-	sqlQuery := fmt.Sprintf("UPDATE %s SET %s='%t' WHERE feature_id=%d", featureTableName, inverted, invert, featureID)
+	sqlQuery := fmt.Sprintf("UPDATE %s SET %s= NOT %s WHERE feature_id=%d", featureTableName, inverted, inverted, featureID)
 
 	_, err = db.Exec(sqlQuery)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return false
 	}
+
+	return true
 }
 
-func archiveFeature(featureID int) {
-	fmt.Println("Updating feature toggle.")
+// ArchiveFeature ...
+func ArchiveFeature(featureID int) bool {
+	fmt.Println("Archiving feature.")
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return false
 	}
 
-	sqlQuery := fmt.Sprintf("UPDATE %s SET %s='%t' WHERE feature_id=%d", featureTableName, active, false, featureID)
+	sqlQuery := fmt.Sprintf("UPDATE %s SET %s= NOT %s WHERE feature_id=%d", featureTableName, active, active, featureID)
 
 	_, err = db.Exec(sqlQuery)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return false
 	}
+
+	return true
 }

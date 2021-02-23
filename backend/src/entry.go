@@ -7,5 +7,4 @@ func main() {
 	persistence.GetCustomers()
 	persistence.GetFeatures()
 	persistence.GetCustomerFeatures(2)
-	persistence.UpdateFeature(1, true)
 }

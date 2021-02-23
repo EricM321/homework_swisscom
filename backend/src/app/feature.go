@@ -1,35 +1,47 @@
 package main
 
-/*
-Entity "FeatureToggle":
-- displayName?: string
-- technicalName: string
-- expiresOn?: datetime
-- description?: string
-- inverted: bool
-- customerIds: string[]
-*/
+import (
+	"persistence"
+	"time"
+)
 
-func getFeatures() []byte {
-	return nil
+// Feature ...
+type Feature struct {
+	ID            int       `json:"id"`          // optional
+	DisplayName   string    `json:"displayName"` // optional
+	TechnicalName string    `json:"technicalName"`
+	ExpiresOn     time.Time `json:"expiresOn"`   // optional
+	Description   string    `json:"description"` // optional
+	Inverted      bool      `json:"inverted"`
+	CustomerIds   []int     `json:"customerIds"`
 }
 
-func getFeature(id int) []byte {
-	return nil
+// GetFeatures ...
+func GetFeatures() []byte {
+	return persistence.GetFeatures()
 }
 
-func createFeature() {
-
+// GetFeature ...
+func GetFeature(id int) []byte {
+	return persistence.GetFeature(id)
 }
 
-func updateFreature() {
-
+// CreateNewFeature ...
+func CreateNewFeature(values []byte) bool {
+	return persistence.CreateFeature(values)
 }
 
-func toggleFeature() {
-
+// UpdateFreature ...
+func UpdateFreature(values []byte) bool {
+	return persistence.UpdateFeature(values)
 }
 
-func archiveFeature() {
+// ToggleFeature ...
+func ToggleFeature(id int) bool {
+	return persistence.ToggleFeature(id)
+}
 
+// ArchiveFeature ...
+func ArchiveFeature(id int) bool {
+	return persistence.ArchiveFeature(id)
 }
