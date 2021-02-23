@@ -77,12 +77,14 @@ func createTables() {
 		panic(err)
 	}
 
+	// TODO remove inverted and from feature struct too
 	_, err = db.Exec("CREATE TABLE " + featureTableName +
 		"( feature_id serial primary key, " + displayName + " varchar(50), " + technicalName + " varchar(50) not null, " + expiresOn + " timestamp with time zone, " + description + " varchar(255), " + inverted + " boolean not null, " + active + " boolean not null)")
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// TODO add inverted and add to customer struct
 	_, err = db.Exec("CREATE TABLE " + customerTableName +
 		"( customer_id serial primary key, " + customerName + " varchar(50) not null, UNIQUE(name))")
 
