@@ -9,17 +9,23 @@ Entity "FeatureToggle":
 - inverted: bool
 - customerIds: string[]
 */
+
+func getFeatures() []byte {
+	return nil
+}
+
 func getFeature(id int) []byte {
 	return nil
 }
 
-func addFeature() {
+func createFeature() {
 
 }
 
 func updateFreature() {
 
 }
+
 func toggleFeature() {
 
 }

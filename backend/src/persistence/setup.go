@@ -84,7 +84,7 @@ func createTables() {
 	}
 
 	_, err = db.Exec("CREATE TABLE " + customerTableName +
-		"( customer_id serial primary key, " + customerEmail + " varchar(50) not null," + customerName + " varchar(50) not null, " + customerRole + " varchar(50) not null, UNIQUE(email))")
+		"( customer_id serial primary key, " + customerName + " varchar(50) not null, UNIQUE(name))")
 
 	if err != nil {
 		panic(err)
@@ -118,14 +118,14 @@ func addInitialData() {
 	}
 
 	var featureID int
-	err = stmt.QueryRow("firstFeature", "testingFeature", time.Now(), "Checking if insert works", false, true).Scan(&featureID)
+	err = stmt.QueryRow("firstFeature", "testingFeature", time.Date(2022, 12, 31, 12, 0, 0, 0, time.UTC), "Checking if insert works", false, true).Scan(&featureID)
 	if err != nil {
 		panic(err)
 	}
 
 	sqlQuery = `
-	INSERT INTO ` + customerTableName + ` (` + customerEmail + `, ` + customerName + `, ` + customerRole + `)
-	VALUES ($1, $2, $3)  RETURNING customer_id`
+	INSERT INTO ` + customerTableName + ` (` + customerName + `)
+	VALUES ($1)  RETURNING customer_id`
 
 	stmt, err = db.Prepare(sqlQuery)
 	if err != nil {
@@ -134,11 +134,15 @@ func addInitialData() {
 
 	var customerID int
 
-	err = stmt.QueryRow("eric@example.com", "Eric Moore", "admin").Scan(&customerID)
+	err = stmt.QueryRow("AT&T").Scan(&customerID)
 	if err != nil {
 		panic(err)
 	}
 
+	err = stmt.QueryRow("Swisscom").Scan(&customerID)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Printf("feature_id: %d customer_id: %d\n", featureID, customerID)
 
 	sqlQuery = `

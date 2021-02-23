@@ -8,17 +8,6 @@ import (
 	"time"
 )
 
-type customer struct {
-	ID    int    `json:"customerId"`
-	Email string `json:"email"`
-	Name  string `json:"name"`
-	Role  string `json:"role"`
-}
-
-type customers struct {
-	Customers []customer `json:"customers"`
-}
-
 type feature struct {
 	ID            int       `json:"featureId"`
 	DisplayName   string    `json:"displayName"`
@@ -40,69 +29,6 @@ type relation struct {
 
 type relations struct {
 	Relations []relation `json:"relations"`
-}
-
-// GetCustomers ...
-func GetCustomers() []byte {
-	fmt.Println("Retrieving customers.")
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		panic(err)
-	}
-
-	sqlQuery := `SELECT * FROM ` + customerTableName
-
-	stmt, err := db.Prepare(sqlQuery)
-	if err != nil {
-		panic(err)
-	}
-
-	rows, err := stmt.Query()
-	if err != nil {
-		panic(err)
-	}
-
-	var customersArray []customer
-
-	defer rows.Close()
-	for rows.Next() {
-		var id int
-		var email string
-		var name string
-		var role string
-		err = rows.Scan(&id, &email, &name, &role)
-		if err != nil {
-			// handle this error
-			panic(err)
-		}
-
-		cust := customer{
-			ID:    id,
-			Email: email,
-			Name:  name,
-			Role:  role,
-		}
-		customersArray = append(customersArray, cust)
-	}
-	// get any error encountered during iteration
-	err = rows.Err()
-	if err != nil {
-		panic(err)
-	}
-	db.Close()
-
-	cust2 := customers{
-		Customers: customersArray,
-	}
-
-	var jsonData []byte
-	jsonData, err = json.Marshal(cust2)
-	if err != nil {
-		log.Println(err)
-	}
-	fmt.Println(string(jsonData))
-	return jsonData
 }
 
 // GetFeatures temp
@@ -174,23 +100,68 @@ func GetFeatures() []byte {
 	return jsonData
 }
 
-// UpdateCustomer temp
-func UpdateCustomer(customerID int, role string) {
-
-	fmt.Println("Updating customer role.")
+// GetFeature ...
+func GetFeature(id int) []byte {
+	fmt.Println("Retrieving feature.")
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
 		panic(err)
 	}
 
-	sqlQuery := fmt.Sprintf("UPDATE %s SET %s='%s' WHERE customer_id=%d", customerTableName, "role", role, customerID)
+	sqlQuery := fmt.Sprintf("SELECT * FROM %s WHERE feature_id=%d", featureTableName, id)
 
-	_, err = db.Exec(sqlQuery)
+	stmt, err := db.Prepare(sqlQuery)
 	if err != nil {
 		panic(err)
 	}
 
+	rows, err := stmt.Query()
+	if err != nil {
+		panic(err)
+	}
+
+	var feat feature
+
+	defer rows.Close()
+	for rows.Next() {
+		var id int
+		var displayName string
+		var technicalName string
+		var expiresOn time.Time
+		var description string
+		var inverted bool
+		var active bool
+		err = rows.Scan(&id, &displayName, &technicalName, &expiresOn, &description, &inverted, &active)
+		if err != nil {
+			// handle this error
+			panic(err)
+		}
+
+		feat = feature{
+			ID:            id,
+			DisplayName:   displayName,
+			TechnicalName: technicalName,
+			ExpiresOn:     expiresOn,
+			Description:   description,
+			Inverted:      inverted,
+			Active:        active,
+		}
+	}
+	// get any error encountered during iteration
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+	db.Close()
+
+	var jsonData []byte
+	jsonData, err = json.Marshal(feat)
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(string(jsonData))
+	return jsonData
 }
 
 // UpdateFeature temp
@@ -208,65 +179,6 @@ func UpdateFeature(featureID int, invert bool) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-// GetCustomerFeatures temp
-func GetCustomerFeatures() []byte {
-	fmt.Println("Retrieving customer and feature relations.")
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		panic(err)
-	}
-
-	sqlQuery := `SELECT * FROM ` + linkerTableName
-
-	stmt, err := db.Prepare(sqlQuery)
-	if err != nil {
-		panic(err)
-	}
-
-	rows, err := stmt.Query()
-	if err != nil {
-		panic(err)
-	}
-
-	var relationsArray []relation
-
-	defer rows.Close()
-	for rows.Next() {
-		var customerID int
-		var featureID int
-		err = rows.Scan(&customerID, &featureID)
-		if err != nil {
-			// handle this error
-			panic(err)
-		}
-
-		relat := relation{
-			CustomerID: customerID,
-			FeatureID:  featureID,
-		}
-		relationsArray = append(relationsArray, relat)
-	}
-	// get any error encountered during iteration
-	err = rows.Err()
-	if err != nil {
-		panic(err)
-	}
-	db.Close()
-
-	relat2 := relations{
-		Relations: relationsArray,
-	}
-
-	var jsonData []byte
-	jsonData, err = json.Marshal(relat2)
-	if err != nil {
-		log.Println(err)
-	}
-	fmt.Println(string(jsonData))
-	return jsonData
 }
 
 func archiveFeature(featureID int) {
