@@ -84,7 +84,6 @@ func createTables() {
 		log.Fatal(err)
 	}
 
-	// TODO add inverted and add to customer struct
 	_, err = db.Exec("CREATE TABLE " + customerTableName +
 		"( customer_id serial primary key, " + customerName + " varchar(50) not null, UNIQUE(name))")
 
@@ -92,8 +91,9 @@ func createTables() {
 		panic(err)
 	}
 
+	// TODO add inverted and add to linker struct
 	_, err = db.Exec("CREATE TABLE " + linkerTableName +
-		"( customer_id integer not null, feature_id integer not null, primary key (customer_id, feature_id), foreign key (customer_id) references " + customerTableName + " (customer_id), foreign key (feature_id) references " + featureTableName + "(feature_id))")
+		"( customer_id integer not null, feature_id integer not null, primary key (customer_id, feature_id), foreign key (customer_id) references " + customerTableName + " (customer_id), foreign key (feature_id) references " + featureTableName + "(feature_id), " + inverted + " boolean not null)")
 	if err != nil {
 		panic(err)
 	}
@@ -148,10 +148,10 @@ func addInitialData() {
 	fmt.Printf("feature_id: %d customer_id: %d\n", featureID, customerID)
 
 	sqlQuery = `
-	INSERT INTO ` + linkerTableName + ` (customer_id, feature_id)
-	VALUES ($1, $2)`
+	INSERT INTO ` + linkerTableName + ` (customer_id, feature_id, inverted)
+	VALUES ($1, $2, $3)`
 
-	_, err = db.Exec(sqlQuery, customerID, featureID)
+	_, err = db.Exec(sqlQuery, customerID, featureID, false)
 	if err != nil {
 		panic(err)
 	}

@@ -72,11 +72,11 @@ func CreateFeature(value []byte) bool {
 	}
 
 	sqlQuery = `
-	INSERT INTO ` + linkerTableName + ` (customer_id, feature_id)
-	VALUES ($1, $2)`
+	INSERT INTO ` + linkerTableName + ` (customer_id, feature_id, inverted)
+	VALUES ($1, $2, $3)`
 
 	for _, customerID := range values.CustomerIds {
-		_, err = db.Exec(sqlQuery, customerID, featureID)
+		_, err = db.Exec(sqlQuery, customerID, featureID, false)
 		if err != nil {
 			log.Panicln(err)
 			return false
@@ -121,11 +121,11 @@ func UpdateFeature(value []byte) bool {
 
 	// need to remove customers from feature as well
 	sqlQuery = `
-	INSERT INTO ` + linkerTableName + ` (customer_id, feature_id)
-	VALUES ($1, $2) ON CONFLICT DO NOTHING`
+	INSERT INTO ` + linkerTableName + ` (customer_id, feature_id, inverted)
+	VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`
 
 	for _, customerID := range values.CustomerIds {
-		_, err = db.Exec(sqlQuery, customerID, values.ID)
+		_, err = db.Exec(sqlQuery, customerID, values.ID, false)
 
 		if err != nil {
 			log.Panicln(err)

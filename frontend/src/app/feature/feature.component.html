@@ -1,0 +1,64 @@
+<div>Active Features</div>
+
+<div class="action-buttons">
+    <mat-accordion class="headers-align" multi *ngFor="let feature of features">
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    <div *ngIf="feature.displayName; then displayName else technicalName"></div>
+                    <ng-template #displayName>{{ feature.displayName }}</ng-template>
+                    <ng-template #technicalName>{{ feature.technicalName }}</ng-template>
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+    
+            <mat-grid-list cols="4" rowHeight="30px">
+                <mat-grid-tile><h3>Display Name</h3></mat-grid-tile>
+                <mat-grid-tile><h3>Technical Name</h3></mat-grid-tile>
+                <mat-grid-tile><h3>Description</h3></mat-grid-tile>
+                <mat-grid-tile><h3>Experation Date</h3></mat-grid-tile>
+                <mat-grid-tile>{{ feature.displayName }}</mat-grid-tile>
+                <mat-grid-tile>{{ feature.technicalName }}</mat-grid-tile>
+                <mat-grid-tile>{{ feature.description }}</mat-grid-tile>
+                <mat-grid-tile>{{ feature.expiresOn }}</mat-grid-tile>
+            </mat-grid-list>
+    
+        </mat-expansion-panel>
+        <div class="button-row">
+            <button mat-raised-button>Edit</button>
+            <button mat-raised-button color="warn">Archive</button>
+            <mat-slide-toggle  [checked]=feature.inverted color="primary">Toggle</mat-slide-toggle>
+        </div>
+    </mat-accordion>
+</div>
+
+<div>Archived Features</div>
+
+<div class="action-buttons">
+    <mat-accordion class="headers-align" multi *ngFor="let feature of archivedFeatures">
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    <div *ngIf="feature.displayName; then displayName else technicalName"></div>
+                    <ng-template #displayName>{{ feature.displayName }}</ng-template>
+                    <ng-template #technicalName>{{ feature.technicalName }}</ng-template>
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <mat-grid-list cols="4" rowHeight="30px">
+                <mat-grid-tile><h3>Display Name</h3></mat-grid-tile>
+                <mat-grid-tile><h3>Technical Name</h3></mat-grid-tile>
+                <mat-grid-tile><h3>Description</h3></mat-grid-tile>
+                <mat-grid-tile><h3>Experation Date</h3></mat-grid-tile>
+                <mat-grid-tile>{{ feature.displayName }}</mat-grid-tile>
+                <mat-grid-tile>{{ feature.technicalName }}</mat-grid-tile>
+                <mat-grid-tile>{{ feature.description }}</mat-grid-tile>
+                <mat-grid-tile>{{ feature.expiresOn }}</mat-grid-tile>
+            </mat-grid-list>
+        
+        </mat-expansion-panel>
+        <div class="button-row">
+            <button mat-raised-button color="warn">Unarchive</button>
+            <mat-slide-toggle [checked]=feature.inverted [disabled]=true color="primary">Toggle</mat-slide-toggle>
+        </div>
+    </mat-accordion>
+</div>

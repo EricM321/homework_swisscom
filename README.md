@@ -21,3 +21,10 @@ export GOPATH=~/Documents/homework_swisscom/backend
 curl -H "Content-Type: application/json" --request POST http://localhost:10000/api/v1/feature --data '{"displayName":"Test","technicalName":"Test_Create_Feature","expiresOn":"0001-01-01T00:00:00Z","description":"","inverted":false,"active":true}'
 
 curl -H "Content-Type: application/json" --request POST http://localhost:10000/api/v1/customer --data '{name: "Ericsson"}'
+
+# To run application
+export GOPATH=\<pathto\>/homework_swisscom/backend
+1. cd backend && docker-compose up -d
+2. cd src/app/
+3. go build && ./app
+4. In a new terminal: cd frontend && npm install && npm start

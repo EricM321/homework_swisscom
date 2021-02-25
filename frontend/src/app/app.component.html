@@ -1,28 +1,17 @@
+<div>{{ title }}</div>
+<app-dialog-form>Loading</app-dialog-form>
+
 <div class="content" role="main">
-  <div>{{ title }}</div>
-  <button>{{featureButton}}</button>
-  <button>{{customerButton}}</button>
-</div>
-<div class="content" role="main">
-  <div>{{ customerSelect }}</div>
-</div>
-<div class="content" role="main">
-  <div>{{ active }}</div>
-  <div>Feature name 1</div>
-  <button>{{editButton}}</button>
-  <button>{{archiveButton}}</button>
-  <button>{{toggleButton}}</button>
-  <div>Feature name 2</div>
-  <button>{{editButton}}</button>
-  <button>{{archiveButton}}</button>
-  <button>{{toggleButton}}</button>
-</div>
-<div class="content" role="main">
-  <div>{{ archive }}</div>
-  <div>Feature name 4</div>
-  <button>{{archiveButton}}</button>
-  <div>Feature name 3</div>
-  <button>{{archiveButton}}</button>
+  <mat-form-field appearance="fill">
+    <mat-label>Customer Filter</mat-label>
+    <mat-select>
+      <mat-option *ngFor="let customer of customers" [value]="customer.name">
+        {{customer.name}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  
+  <app-feature></app-feature>
 </div>
 
 <router-outlet></router-outlet>

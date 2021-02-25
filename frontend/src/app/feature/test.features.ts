@@ -1,0 +1,29 @@
+export const allFeatures = [
+    {
+       "featureId":1,
+       "displayName":"firstFeature",
+       "technicalName":"testingFeature",
+       "expiresOn":"2022-12-31T12:00:00Z",
+       "description":"Checking if insert works",
+       "inverted":false,
+       "active":true
+    },
+    {
+       "featureId":2,
+       "displayName":"",
+       "technicalName":"Test_Create_Feature",
+       "expiresOn":"0001-01-01T00:00:00Z",
+       "description":"",
+       "inverted":true,
+       "active":true
+    },
+    {
+        "featureId":3,
+        "displayName":"",
+        "technicalName":"Test_Create_Feature",
+        "expiresOn":"0001-01-01T00:00:00Z",
+        "description":"",
+        "inverted":true,
+        "active":false
+     }
+ ];

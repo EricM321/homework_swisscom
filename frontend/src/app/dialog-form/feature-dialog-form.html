@@ -1,0 +1,27 @@
+<h1 mat-dialog-title>New Feature</h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <mat-label>Display Name</mat-label>
+    <input matInput [(ngModel)]="data.displayName">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Technical Name</mat-label>
+    <input matInput [(ngModel)]="data.technicalName">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Description</mat-label>
+    <textarea matInput [(ngModel)]="data.description"></textarea>
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Expiration Date</mat-label>
+    <input matInput [(ngModel)]="data.expiresOn" [matDatepicker]="picker">
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+  
+  <app-chips-autocomplete></app-chips-autocomplete>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Submit</button>
+</div>
