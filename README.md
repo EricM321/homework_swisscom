@@ -28,3 +28,13 @@ export GOPATH=\<pathto\>/homework_swisscom/backend
 2. cd src/app/
 3. go build && ./app
 4. In a new terminal: cd frontend && npm install && npm start
+
+
+#### TODO/BUGS
+Frontend
+- Fix for CORS
+- Fix backend response processing
+- Hook up rest of responses
+
+Backend
+- Update in backend not failing but not updating row
